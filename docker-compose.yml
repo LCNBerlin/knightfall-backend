@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: knightfall-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: knightfall
+      POSTGRES_USER: knightfall_user
+      POSTGRES_PASSWORD: knightfall_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - knightfall-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: knightfall-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - knightfall-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  knightfall-network:
+    driver: bridge 
