@@ -12,6 +12,7 @@ import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
 import gameRoutes from './routes/games';
 import economyRoutes from './routes/economy';
+import teamRoutes from './routes/teams';
 
 // Import middleware
 import { errorHandler } from './middleware/errorHandler';
@@ -56,6 +57,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/games', gameRoutes);
 app.use('/api/economy', economyRoutes);
+app.use('/api/teams', teamRoutes);
 
 // 404 handler
 app.use(notFound);
