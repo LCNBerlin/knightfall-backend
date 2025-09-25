@@ -82,10 +82,10 @@ CREATE TABLE IF NOT EXISTS teams (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(100) UNIQUE NOT NULL,
     description TEXT,
-    leader_id UUID REFERENCES users(id),
-    member_count INTEGER DEFAULT 0,
-    team_rating INTEGER DEFAULT 1200,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    logo_url VARCHAR(255),
+    house_color VARCHAR(7), -- hex color like #FF0000
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create team_members table
@@ -153,10 +153,13 @@ INSERT INTO users (username, email, password_hash, elo_rating, token_balance, ra
 ON CONFLICT (username) DO NOTHING;
 
 -- Insert sample teams
-INSERT INTO teams (name, description, member_count, team_rating) VALUES
-('House of Kings', 'Elite chess players', 24, 1850),
-('Pawn Masters', 'Rising stars', 18, 1650),
-('Rook Riders', 'Strategic players', 22, 1750)
+INSERT INTO teams (name, description, house_color) VALUES
+('House of Kings', 'Elite chess players', '#FFD700'),
+('Pawn Masters', 'Rising stars', '#8B4513'),
+('Rook Riders', 'Strategic players', '#696969'),
+('Bishop Brigade', 'Diagonal attack specialists', '#9370DB'),
+('Queen''s Guard', 'Elite defenders of the queen', '#FF69B4'),
+('Knight''s Order', 'Chivalrous chess warriors', '#4169E1')
 ON CONFLICT (name) DO NOTHING;
 
 -- Insert sample tournaments
