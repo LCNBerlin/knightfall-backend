@@ -88,12 +88,12 @@ CREATE TABLE IF NOT EXISTS teams (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create team_members table
-CREATE TABLE IF NOT EXISTS team_members (
+-- Create team_memberships table
+CREATE TABLE IF NOT EXISTS team_memberships (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     team_id UUID REFERENCES teams(id) ON DELETE CASCADE,
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    role VARCHAR(20) DEFAULT 'member', -- leader, admin, member
+    role VARCHAR(20) DEFAULT 'member', -- owner, admin, moderator, member
     joined_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(team_id, user_id)
 );
@@ -141,7 +141,8 @@ CREATE INDEX IF NOT EXISTS idx_games_players ON games(white_player_id, black_pla
 CREATE INDEX IF NOT EXISTS idx_games_status ON games(result);
 CREATE INDEX IF NOT EXISTS idx_games_created ON games(created_at);
 CREATE INDEX IF NOT EXISTS idx_tournaments_status ON tournaments(status);
-CREATE INDEX IF NOT EXISTS idx_team_members_user ON team_members(user_id);
+CREATE INDEX IF NOT EXISTS idx_team_memberships_user ON team_memberships(user_id);
+CREATE INDEX IF NOT EXISTS idx_team_memberships_team ON team_memberships(team_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_user ON transactions(user_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_created ON transactions(created_at);
 

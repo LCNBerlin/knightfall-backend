@@ -13,6 +13,7 @@ import userRoutes from './routes/users';
 import gameRoutes from './routes/games';
 import economyRoutes from './routes/economy';
 import teamRoutes from './routes/teams';
+import teamMembershipRoutes from './routes/teamMemberships';
 
 // Import middleware
 import { errorHandler } from './middleware/errorHandler';
@@ -58,6 +59,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/games', gameRoutes);
 app.use('/api/economy', economyRoutes);
 app.use('/api/teams', teamRoutes);
+app.use('/api', teamMembershipRoutes);
 
 // 404 handler
 app.use(notFound);
