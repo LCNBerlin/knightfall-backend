@@ -362,39 +362,40 @@ export class TournamentModel {
   static validateTournamentData(data: CreateTournamentData | UpdateTournamentData): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
 
-    if ('name' in data && (!data.name || typeof data.name !== 'string' || data.name.trim().length < 3)) {
+    if ('name' in data && (data.name === undefined || typeof data.name !== 'string' || data.name.trim().length < 3)) {
       errors.push('Tournament name must be at least 3 characters long');
     }
 
-    if ('description' in data && (!data.description || typeof data.description !== 'string' || data.description.trim().length < 10)) {
+    if ('description' in data && (data.description === undefined || typeof data.description !== 'string' || data.description.trim().length < 10)) {
       errors.push('Tournament description must be at least 10 characters long');
     }
 
-    if ('tournament_type' in data && !['elimination', 'swiss', 'round_robin', 'custom'].includes(data.tournament_type)) {
+    if ('tournament_type' in data && (data.tournament_type === undefined || !['elimination', 'swiss', 'round_robin', 'custom'].includes(data.tournament_type))) {
       errors.push('Invalid tournament type');
     }
 
-    if ('max_teams' in data && (data.max_teams < 2 || data.max_teams > 64)) {
+    if ('max_teams' in data && (data.max_teams === undefined || data.max_teams < 2 || data.max_teams > 64)) {
       errors.push('Maximum teams must be between 2 and 64');
     }
 
-    if ('entry_fee' in data && (data.entry_fee < 0 || data.entry_fee > 10000)) {
+    if ('entry_fee' in data && (data.entry_fee === undefined || data.entry_fee < 0 || data.entry_fee > 10000)) {
       errors.push('Entry fee must be between 0 and 10000');
     }
 
-    if ('time_control' in data && (!data.time_control || typeof data.time_control !== 'string')) {
+    if ('time_control' in data && (data.time_control === undefined || typeof data.time_control !== 'string')) {
       errors.push('Time control is required');
     }
 
-    if ('start_date' in data && (!data.start_date || new Date(data.start_date) <= new Date())) {
+    if ('start_date' in data && (data.start_date === undefined || new Date(data.start_date) <= new Date())) {
       errors.push('Start date must be in the future');
     }
 
-    if ('registration_deadline' in data && (!data.registration_deadline || new Date(data.registration_deadline) <= new Date())) {
+    if ('registration_deadline' in data && (data.registration_deadline === undefined || new Date(data.registration_deadline) <= new Date())) {
       errors.push('Registration deadline must be in the future');
     }
 
-    if ('start_date' in data && 'registration_deadline' in data && 
+    if ('start_date' in data && 'registration_deadline' in data &&
+        data.registration_deadline !== undefined && data.start_date !== undefined &&
         new Date(data.registration_deadline) >= new Date(data.start_date)) {
       errors.push('Registration deadline must be before start date');
     }
