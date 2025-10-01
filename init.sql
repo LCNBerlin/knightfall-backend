@@ -132,6 +132,30 @@ CREATE TABLE IF NOT EXISTS notifications (
     read_at TIMESTAMP WITH TIME ZONE
 );
 
+-- Create team_stats table
+CREATE TABLE IF NOT EXISTS team_stats (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    team_id UUID REFERENCES teams(id) ON DELETE CASCADE,
+    total_games INTEGER DEFAULT 0,
+    wins INTEGER DEFAULT 0,
+    losses INTEGER DEFAULT 0,
+    draws INTEGER DEFAULT 0,
+    team_rating INTEGER DEFAULT 1200,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(team_id)
+);
+
+-- Create team_achievements table
+CREATE TABLE IF NOT EXISTS team_achievements (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    team_id UUID REFERENCES teams(id) ON DELETE CASCADE,
+    achievement_type VARCHAR(30) NOT NULL,
+    description TEXT NOT NULL,
+    points INTEGER DEFAULT 0,
+    earned_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(team_id, achievement_type)
+);
+
 -- Create puzzles table
 CREATE TABLE IF NOT EXISTS puzzles (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -187,6 +211,12 @@ CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_type ON notifications(type);
 CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(is_read);
 CREATE INDEX IF NOT EXISTS idx_notifications_created ON notifications(created_at);
+CREATE INDEX IF NOT EXISTS idx_team_stats_team ON team_stats(team_id);
+CREATE INDEX IF NOT EXISTS idx_team_stats_rating ON team_stats(team_rating);
+CREATE INDEX IF NOT EXISTS idx_team_stats_games ON team_stats(total_games);
+CREATE INDEX IF NOT EXISTS idx_team_achievements_team ON team_achievements(team_id);
+CREATE INDEX IF NOT EXISTS idx_team_achievements_type ON team_achievements(achievement_type);
+CREATE INDEX IF NOT EXISTS idx_team_achievements_earned ON team_achievements(earned_at);
 CREATE INDEX IF NOT EXISTS idx_transactions_user ON transactions(user_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_created ON transactions(created_at);
 
