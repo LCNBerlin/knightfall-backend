@@ -98,6 +98,40 @@ CREATE TABLE IF NOT EXISTS team_memberships (
     UNIQUE(team_id, user_id)
 );
 
+-- Create friendships table
+CREATE TABLE IF NOT EXISTS friendships (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    friend_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    status VARCHAR(20) DEFAULT 'pending', -- pending, accepted, blocked
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, friend_id)
+);
+
+-- Create team_chat_messages table
+CREATE TABLE IF NOT EXISTS team_chat_messages (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    team_id UUID REFERENCES teams(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    message TEXT NOT NULL,
+    message_type VARCHAR(20) DEFAULT 'text', -- text, system, announcement
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create notifications table
+CREATE TABLE IF NOT EXISTS notifications (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    type VARCHAR(30) NOT NULL, -- friend_request, friend_accepted, team_invite, etc.
+    title VARCHAR(100) NOT NULL,
+    message TEXT NOT NULL,
+    data JSONB DEFAULT '{}',
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    read_at TIMESTAMP WITH TIME ZONE
+);
+
 -- Create puzzles table
 CREATE TABLE IF NOT EXISTS puzzles (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -143,6 +177,16 @@ CREATE INDEX IF NOT EXISTS idx_games_created ON games(created_at);
 CREATE INDEX IF NOT EXISTS idx_tournaments_status ON tournaments(status);
 CREATE INDEX IF NOT EXISTS idx_team_memberships_user ON team_memberships(user_id);
 CREATE INDEX IF NOT EXISTS idx_team_memberships_team ON team_memberships(team_id);
+CREATE INDEX IF NOT EXISTS idx_friendships_user ON friendships(user_id);
+CREATE INDEX IF NOT EXISTS idx_friendships_friend ON friendships(friend_id);
+CREATE INDEX IF NOT EXISTS idx_friendships_status ON friendships(status);
+CREATE INDEX IF NOT EXISTS idx_team_chat_messages_team ON team_chat_messages(team_id);
+CREATE INDEX IF NOT EXISTS idx_team_chat_messages_user ON team_chat_messages(user_id);
+CREATE INDEX IF NOT EXISTS idx_team_chat_messages_created ON team_chat_messages(created_at);
+CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_type ON notifications(type);
+CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(is_read);
+CREATE INDEX IF NOT EXISTS idx_notifications_created ON notifications(created_at);
 CREATE INDEX IF NOT EXISTS idx_transactions_user ON transactions(user_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_created ON transactions(created_at);
 

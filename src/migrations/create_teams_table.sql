@@ -40,3 +40,4 @@ INSERT INTO teams (name, description, house_color) VALUES
   ('Queen''s Guard', 'Elite defenders of the queen', '#FF69B4'),
   ('Knight''s Order', 'Chivalrous chess warriors', '#4169E1')
 ON CONFLICT (name) DO NOTHING;
+

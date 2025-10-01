@@ -19,3 +19,4 @@ router.delete('/teams/:teamId/members/:userId', authenticateToken, validateTeamI
 router.post('/teams/:teamId/transfer-ownership', authenticateToken, validateTeamId, TeamMembershipController.transferOwnership);
 
 export default router;
+

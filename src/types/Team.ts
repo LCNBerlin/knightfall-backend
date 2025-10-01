@@ -90,3 +90,4 @@ export interface TeamDetailResponse extends Team {
   stats?: TeamStats;
   achievements?: TeamAchievement[];
 }
+
