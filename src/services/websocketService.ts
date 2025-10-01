@@ -285,4 +285,60 @@ export class WebSocketService {
       timestamp: new Date().toISOString()
     });
   }
+
+  // Send team invitation notification
+  static async sendTeamInvitationNotification(userId: string, invitationData: any): Promise<void> {
+    if (!this.socketServer) return;
+
+    try {
+      this.socketServer.sendToUser(userId, 'team_invitation', {
+        ...invitationData,
+        message: `You've been invited to join ${invitationData.team_name}`
+      });
+    } catch (error) {
+      console.error('Failed to send team invitation notification:', error);
+    }
+  }
+
+  // Send invitation accepted notification
+  static async sendInvitationAcceptedNotification(userId: string, data: any): Promise<void> {
+    if (!this.socketServer) return;
+
+    try {
+      this.socketServer.sendToUser(userId, 'invitation_accepted', {
+        ...data,
+        message: `${data.invitee_username} accepted your invitation to join ${data.team_name}`
+      });
+    } catch (error) {
+      console.error('Failed to send invitation accepted notification:', error);
+    }
+  }
+
+  // Send invitation declined notification
+  static async sendInvitationDeclinedNotification(userId: string, data: any): Promise<void> {
+    if (!this.socketServer) return;
+
+    try {
+      this.socketServer.sendToUser(userId, 'invitation_declined', {
+        ...data,
+        message: `${data.invitee_username} declined your invitation to join ${data.team_name}`
+      });
+    } catch (error) {
+      console.error('Failed to send invitation declined notification:', error);
+    }
+  }
+
+  // Send team member joined notification
+  static async sendTeamMemberJoinedNotification(teamId: string, data: any): Promise<void> {
+    if (!this.socketServer) return;
+
+    try {
+      this.socketServer.sendToTeam(teamId, 'member_joined', {
+        ...data,
+        message: `${data.username} joined the team as ${data.role}`
+      });
+    } catch (error) {
+      console.error('Failed to send team member joined notification:', error);
+    }
+  }
 }

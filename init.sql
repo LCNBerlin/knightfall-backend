@@ -305,6 +305,22 @@ CREATE TABLE IF NOT EXISTS team_permissions (
     UNIQUE(team_id, role, permission)
 );
 
+-- Create team_invitations table
+CREATE TABLE IF NOT EXISTS team_invitations (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    team_id UUID REFERENCES teams(id) ON DELETE CASCADE,
+    inviter_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    invitee_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    role VARCHAR(20) NOT NULL, -- admin, moderator, member, guest
+    message TEXT,
+    status VARCHAR(20) DEFAULT 'pending', -- pending, accepted, declined, expired, cancelled
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    responded_at TIMESTAMP WITH TIME ZONE,
+    UNIQUE(team_id, invitee_id, status) -- Only one pending invitation per team per user
+);
+
 -- Indexes for tournament tables
 CREATE INDEX IF NOT EXISTS idx_tournaments_created_by ON tournaments(created_by);
 CREATE INDEX IF NOT EXISTS idx_tournaments_status ON tournaments(status);
@@ -323,6 +339,12 @@ CREATE INDEX IF NOT EXISTS idx_team_permissions_role ON team_permissions(role);
 CREATE INDEX IF NOT EXISTS idx_team_permissions_permission ON team_permissions(permission);
 CREATE INDEX IF NOT EXISTS idx_team_permissions_granted ON team_permissions(granted);
 CREATE INDEX IF NOT EXISTS idx_team_permissions_expires ON team_permissions(expires_at);
+CREATE INDEX IF NOT EXISTS idx_team_invitations_team ON team_invitations(team_id);
+CREATE INDEX IF NOT EXISTS idx_team_invitations_inviter ON team_invitations(inviter_id);
+CREATE INDEX IF NOT EXISTS idx_team_invitations_invitee ON team_invitations(invitee_id);
+CREATE INDEX IF NOT EXISTS idx_team_invitations_status ON team_invitations(status);
+CREATE INDEX IF NOT EXISTS idx_team_invitations_expires ON team_invitations(expires_at);
+CREATE INDEX IF NOT EXISTS idx_team_invitations_created ON team_invitations(created_at);
 
 -- Insert sample tournaments
 INSERT INTO tournaments (name, description, tournament_type, max_teams, entry_fee, time_control, created_by, start_date, registration_deadline) VALUES
