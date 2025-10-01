@@ -1,6 +1,7 @@
 import app from './app';
 import { testConnection, initializeDatabase } from './config/database';
 import { SocketServer } from './socket/socketServer';
+import { WebSocketService } from './services/websocketService';
 import { Server as HTTPServer } from 'http';
 
 const PORT = process.env.PORT || 3001;
@@ -10,6 +11,9 @@ const httpServer = new HTTPServer(app);
 
 // Initialize Socket.io server
 const socketServer = new SocketServer(httpServer);
+
+// Initialize WebSocket service
+WebSocketService.initialize(socketServer);
 
 const server = httpServer.listen(PORT, async () => {
   console.log(`🚀 Knightfall Backend Server running on port ${PORT}`);

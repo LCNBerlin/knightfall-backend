@@ -4,6 +4,7 @@ import { TeamChatMessageModel, CreateTeamChatMessageData } from '../models/TeamC
 import { NotificationModel, CreateNotificationData } from '../models/Notification';
 import { TeamMembershipModel } from '../models/TeamMembership';
 import { UserModel } from '../models/User';
+import { WebSocketService } from '../services/websocketService';
 
 export class SocialController {
   // === FRIEND SYSTEM ===
@@ -69,6 +70,9 @@ export class SocialController {
 
       // Create notification for friend
       await NotificationModel.createFriendRequestNotification(friendId, req.user?.username || 'Unknown');
+      
+      // Send real-time notification
+      await WebSocketService.sendFriendRequestNotification(friendId, req.user?.username || 'Unknown');
 
       res.status(201).json({
         success: true,
@@ -131,6 +135,9 @@ export class SocialController {
       const sender = await UserModel.findById(friendship.user_id);
       if (sender) {
         await NotificationModel.createFriendAcceptedNotification(friendship.user_id, req.user?.username || 'Unknown');
+        
+        // Send real-time notification
+        await WebSocketService.sendFriendAcceptedNotification(friendship.user_id, req.user?.username || 'Unknown');
       }
 
       res.status(200).json({
