@@ -292,6 +292,19 @@ CREATE TABLE IF NOT EXISTS tournament_matches (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create team_permissions table
+CREATE TABLE IF NOT EXISTS team_permissions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    team_id UUID REFERENCES teams(id) ON DELETE CASCADE,
+    role VARCHAR(20) NOT NULL, -- owner, admin, moderator, member, guest
+    permission VARCHAR(50) NOT NULL, -- team.manage, team.delete, etc.
+    granted BOOLEAN NOT NULL DEFAULT FALSE,
+    granted_by UUID REFERENCES users(id) ON DELETE CASCADE,
+    granted_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP WITH TIME ZONE,
+    UNIQUE(team_id, role, permission)
+);
+
 -- Indexes for tournament tables
 CREATE INDEX IF NOT EXISTS idx_tournaments_created_by ON tournaments(created_by);
 CREATE INDEX IF NOT EXISTS idx_tournaments_status ON tournaments(status);
@@ -305,6 +318,11 @@ CREATE INDEX IF NOT EXISTS idx_tournament_matches_round ON tournament_matches(ro
 CREATE INDEX IF NOT EXISTS idx_tournament_matches_status ON tournament_matches(status);
 CREATE INDEX IF NOT EXISTS idx_tournament_matches_team1 ON tournament_matches(team1_id);
 CREATE INDEX IF NOT EXISTS idx_tournament_matches_team2 ON tournament_matches(team2_id);
+CREATE INDEX IF NOT EXISTS idx_team_permissions_team ON team_permissions(team_id);
+CREATE INDEX IF NOT EXISTS idx_team_permissions_role ON team_permissions(role);
+CREATE INDEX IF NOT EXISTS idx_team_permissions_permission ON team_permissions(permission);
+CREATE INDEX IF NOT EXISTS idx_team_permissions_granted ON team_permissions(granted);
+CREATE INDEX IF NOT EXISTS idx_team_permissions_expires ON team_permissions(expires_at);
 
 -- Insert sample tournaments
 INSERT INTO tournaments (name, description, tournament_type, max_teams, entry_fee, time_control, created_by, start_date, registration_deadline) VALUES
