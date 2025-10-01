@@ -237,9 +237,78 @@ INSERT INTO teams (name, description, house_color) VALUES
 ('Knight''s Order', 'Chivalrous chess warriors', '#4169E1')
 ON CONFLICT (name) DO NOTHING;
 
+-- Create tournaments table
+CREATE TABLE IF NOT EXISTS tournaments (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    tournament_type VARCHAR(20) NOT NULL, -- elimination, swiss, round_robin, custom
+    status VARCHAR(20) DEFAULT 'draft', -- draft, open, in_progress, completed, cancelled
+    max_teams INTEGER NOT NULL,
+    current_teams INTEGER DEFAULT 0,
+    entry_fee INTEGER DEFAULT 0,
+    prize_pool INTEGER DEFAULT 0,
+    time_control VARCHAR(50) NOT NULL,
+    created_by UUID REFERENCES users(id) ON DELETE CASCADE,
+    start_date TIMESTAMP WITH TIME ZONE NOT NULL,
+    end_date TIMESTAMP WITH TIME ZONE,
+    registration_deadline TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create tournament_participants table
+CREATE TABLE IF NOT EXISTS tournament_participants (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    tournament_id UUID REFERENCES tournaments(id) ON DELETE CASCADE,
+    team_id UUID REFERENCES teams(id) ON DELETE CASCADE,
+    registered_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(20) DEFAULT 'registered', -- registered, active, eliminated, withdrawn
+    seed_position INTEGER,
+    final_position INTEGER,
+    points INTEGER DEFAULT 0,
+    wins INTEGER DEFAULT 0,
+    losses INTEGER DEFAULT 0,
+    draws INTEGER DEFAULT 0,
+    UNIQUE(tournament_id, team_id)
+);
+
+-- Create tournament_matches table
+CREATE TABLE IF NOT EXISTS tournament_matches (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    tournament_id UUID REFERENCES tournaments(id) ON DELETE CASCADE,
+    round INTEGER NOT NULL,
+    match_number INTEGER NOT NULL,
+    team1_id UUID REFERENCES teams(id) ON DELETE CASCADE,
+    team2_id UUID REFERENCES teams(id) ON DELETE CASCADE,
+    team1_score INTEGER DEFAULT 0,
+    team2_score INTEGER DEFAULT 0,
+    status VARCHAR(20) DEFAULT 'scheduled', -- scheduled, in_progress, completed, cancelled, bye
+    scheduled_time TIMESTAMP WITH TIME ZONE,
+    started_at TIMESTAMP WITH TIME ZONE,
+    completed_at TIMESTAMP WITH TIME ZONE,
+    game_id UUID REFERENCES games(id) ON DELETE SET NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes for tournament tables
+CREATE INDEX IF NOT EXISTS idx_tournaments_created_by ON tournaments(created_by);
+CREATE INDEX IF NOT EXISTS idx_tournaments_status ON tournaments(status);
+CREATE INDEX IF NOT EXISTS idx_tournaments_type ON tournaments(tournament_type);
+CREATE INDEX IF NOT EXISTS idx_tournaments_start_date ON tournaments(start_date);
+CREATE INDEX IF NOT EXISTS idx_tournament_participants_tournament ON tournament_participants(tournament_id);
+CREATE INDEX IF NOT EXISTS idx_tournament_participants_team ON tournament_participants(team_id);
+CREATE INDEX IF NOT EXISTS idx_tournament_participants_status ON tournament_participants(status);
+CREATE INDEX IF NOT EXISTS idx_tournament_matches_tournament ON tournament_matches(tournament_id);
+CREATE INDEX IF NOT EXISTS idx_tournament_matches_round ON tournament_matches(round);
+CREATE INDEX IF NOT EXISTS idx_tournament_matches_status ON tournament_matches(status);
+CREATE INDEX IF NOT EXISTS idx_tournament_matches_team1 ON tournament_matches(team1_id);
+CREATE INDEX IF NOT EXISTS idx_tournament_matches_team2 ON tournament_matches(team2_id);
+
 -- Insert sample tournaments
-INSERT INTO tournaments (name, description, tournament_type, prize_pool, max_participants, status) VALUES
-('Weekly Championship', 'Weekly competitive tournament', 'swiss', 5000, 128, 'upcoming'),
-('Team Showdown', 'House vs House battle', 'knockout', 1000, 32, 'upcoming'),
-('Puzzle Master Challenge', 'Tactical puzzle tournament', 'round_robin', 500, 64, 'upcoming')
+INSERT INTO tournaments (name, description, tournament_type, max_teams, entry_fee, time_control, created_by, start_date, registration_deadline) VALUES
+('Weekly Championship', 'Weekly competitive tournament for all teams', 'elimination', 32, 100, '10+0', (SELECT id FROM users LIMIT 1), NOW() + INTERVAL '7 days', NOW() + INTERVAL '6 days'),
+('Team Showdown', 'House vs House battle royale', 'swiss', 16, 50, '15+10', (SELECT id FROM users LIMIT 1), NOW() + INTERVAL '14 days', NOW() + INTERVAL '13 days'),
+('Puzzle Master Challenge', 'Tactical puzzle tournament', 'round_robin', 8, 25, '5+0', (SELECT id FROM users LIMIT 1), NOW() + INTERVAL '21 days', NOW() + INTERVAL '20 days')
 ON CONFLICT DO NOTHING; 

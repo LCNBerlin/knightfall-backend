@@ -16,6 +16,7 @@ import teamRoutes from './routes/teams';
 import teamMembershipRoutes from './routes/teamMemberships';
 import socialRoutes from './routes/social';
 import teamLeaderboardRoutes from './routes/teamLeaderboard';
+import tournamentRoutes from './routes/tournaments';
 
 // Import middleware
 import { errorHandler } from './middleware/errorHandler';
@@ -66,6 +67,7 @@ app.use('/api/teams', teamRoutes);
 app.use('/api', teamMembershipRoutes);
 app.use('/api/social', socialRoutes);
 app.use('/api/leaderboard', teamLeaderboardRoutes);
+app.use('/api/tournaments', tournamentRoutes);
 
 // 404 handler
 app.use(notFound);

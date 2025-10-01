@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { UserModel } from '../models/User';
-import { authenticateToken, optionalAuth } from '../middleware/auth';
+import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
 
@@ -41,7 +41,7 @@ router.get('/profile', authenticateToken, async (req, res) => {
 // @route   GET /api/users/leaderboard
 // @desc    Get leaderboard
 // @access  Public
-router.get('/leaderboard', optionalAuth, async (req, res) => {
+router.get('/leaderboard', async (req, res) => {
   try {
     const limit = parseInt(req.query.limit as string) || 10;
     const leaderboard = await UserModel.getLeaderboard(limit);
